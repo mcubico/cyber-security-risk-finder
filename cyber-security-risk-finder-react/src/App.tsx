@@ -1,13 +1,16 @@
-import { useState } from 'react'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { RouterProvider } from 'react-router-dom'
-import viteLogo from '/vite.svg'
+import CssBaseline from '@mui/material/CssBaseline'
 import router from './router/router'
 
-function App() {
-  const [count, setCount] = useState(0)
+const defaultTheme = createTheme();
 
 const App = () => (
+  <CssBaseline enableColorScheme={true}>
+    <ThemeProvider theme={defaultTheme}>
       <RouterProvider router={router} />
+    </ThemeProvider>
+  </CssBaseline>
 )
 
 export default App
