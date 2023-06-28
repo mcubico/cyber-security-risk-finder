@@ -1,0 +1,223 @@
+{
+  "risks": [
+    {
+      "id": 1,
+      "risk": "ataque de fuerza bruta",
+      "description": "Estos riesgos implican intentos repetitivos y automáticos de adivinar contraseñas o claves de cifrado mediante la prueba de diferentes combinaciones. Los atacantes utilizan programas informáticos para generar miles o millones de combinaciones posibles en un corto período de tiempo.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 2,
+      "risk": "vulnerabilidades de hardware",
+      "description": "Estos riesgos se refieren a las debilidades o fallas en los componentes físicos de los sistemas informáticos, como procesadores, tarjetas de red o dispositivos de almacenamiento. Los atacantes pueden aprovechar estas vulnerabilidades para comprometer la seguridad de los sistemas.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 3,
+      "risk": "violaciones de seguridad interna",
+      "description": "Estos riesgos se relacionan con las acciones intencionales o negligentes de empleados o colaboradores internos de una organización. Puede incluir el acceso no autorizado a datos confidenciales, la divulgación deliberada de información sensible o el uso indebido de privilegios de acceso.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 4,
+      "risk": "internet de las cosas (IoT)",
+      "description": "Con el crecimiento de dispositivos conectados a Internet, los riesgos de ciberseguridad también se extienden a los dispositivos de IoT. Estos dispositivos pueden ser vulnerables a ataques y utilizados como puntos de entrada para comprometer la seguridad de las redes y sistemas.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 5,
+      "risk": "ciberespionaje",
+      "description": "Estos riesgos implican ataques cibernéticos dirigidos a obtener información confidencial o secretos comerciales de una organización. Los atacantes pueden ser actores estatales, grupos de hackers patrocinados por el estado o competidores comerciales.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 6,
+      "risk": "ransomware",
+      "description": "El ransomware es un tipo de malware que bloquea el acceso a los sistemas o cifra los archivos de una organización y exige un rescate para restaurar el acceso. Estos riesgos pueden causar interrupciones graves en las operaciones comerciales y resultar en pérdidas financieras.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 7,
+      "risk": "software de terceros",
+      "description": "Muchas organizaciones utilizan software de terceros para diversas funciones. Sin embargo, si estos softwares tienen vulnerabilidades de seguridad no detectadas, pueden ser utilizados por atacantes como una puerta de entrada para comprometer la seguridad de la organización.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 8,
+      "risk": "acceso no autorizado",
+      "description": "Estos riesgos implican el acceso no autorizado a sistemas, redes o cuentas por parte de personas no autorizadas. Esto puede incluir el robo de credenciales de inicio de sesión, el uso de técnicas de fuerza bruta para adivinar contraseñas, o la explotación de vulnerabilidades en los sistemas para obtener acceso no autorizado.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 9,
+      "risk": "malware",
+      "description": "El malware es una amenaza significativa en la ciberseguridad. Los riesgos de malware incluyen la infección de sistemas con virus, gusanos, troyanos, ransomware y otros tipos de software malicioso. Estos pueden causar daños, robo de datos o bloqueo de sistemas hasta que se pague un rescate.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 10,
+      "risk": "phishing",
+      "description": "El phishing es una técnica común utilizada por los ciberdelincuentes para engañar a las personas y obtener información confidencial, como contraseñas o números de tarjetas de crédito. Los riesgos de phishing se producen cuando los usuarios caen en trampas y proporcionan información sensible a los atacantes.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 11,
+      "risk": "ingeniería social",
+      "description": "Estos riesgos involucran la manipulación psicológica de las personas para obtener acceso no autorizado a sistemas o información confidencial. Los atacantes pueden utilizar técnicas de ingeniería social para obtener información sensible de los empleados o para convencerlos de que realicen acciones que comprometan la seguridad.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 12,
+      "risk": "fugas de datos",
+      "description": "Los riesgos de fugas de datos implican la divulgación no autorizada de información confidencial o sensible de una organización. Esto puede ocurrir debido a vulnerabilidades en los sistemas, descuidos de los empleados o ataques cibernéticos. Las fugas de datos pueden tener graves consecuencias, como daño a la reputación, pérdida de confianza del cliente o incumplimiento de las leyes de protección de datos.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 13,
+      "risk": "ataques de denegación de servicio (DDoS)",
+      "description": "Los ataques de denegación de servicio tienen como objetivo interrumpir o bloquear el acceso legítimo a sistemas o servicios. Los atacantes inundan los recursos de la red con tráfico malicioso para sobrecargar los sistemas y hacerlos inaccesibles para los usuarios legítimos.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    },
+    {
+      "id": 14,
+      "risk": "intercepción de datos",
+      "description": "Estos riesgos ocurren cuando los datos en tránsito son interceptados y comprometidos por atacantes. Esto puede suceder en redes inseguras o cuando no se utilizan protocolos de cifrado adecuados.",
+      "active": true,
+      "create_date": 1687883954,
+      "update_date": 1687883964
+    }
+  ],
+  "features": [
+    {
+      "risk_id": 1,
+      "vulnerability": "high",
+      "probability": "high",
+      "impact": "high",
+      "threat": "high"
+    },
+    {
+      "risk_id": 2,
+      "vulnerability": "high",
+      "probability": "medium",
+      "impact": "high",
+      "threat": "low"
+    },
+    {
+      "risk_id": 3,
+      "vulnerability": "high",
+      "probability": "medium",
+      "impact": "high",
+      "threat": "high"
+    },
+    {
+      "risk_id": 4,
+      "vulnerability": "medium",
+      "probability": "low",
+      "impact": "high",
+      "threat": "high"
+    },
+    {
+      "risk_id": 5,
+      "vulnerability": "high",
+      "probability": "high",
+      "impact": "high",
+      "threat": "high"
+    },
+    {
+      "risk_id": 6,
+      "vulnerability": "high",
+      "probability": "high",
+      "impact": "high",
+      "threat": "high"
+    },
+    {
+      "risk_id": 7,
+      "vulnerability": "high",
+      "probability": "low",
+      "impact": "high",
+      "threat": "high"
+    },
+    {
+      "risk_id": 8,
+      "vulnerability": "high",
+      "probability": "low",
+      "impact": "medium",
+      "threat": "medium"
+    },
+    {
+      "risk_id": 9,
+      "vulnerability": "high",
+      "probability": "low",
+      "impact": "medium",
+      "threat": "medium"
+    },
+    {
+      "risk_id": 10,
+      "vulnerability": "high",
+      "probability": "medium",
+      "impact": "medium",
+      "threat": "medium"
+    },
+    {
+      "risk_id": 11,
+      "vulnerability": "high",
+      "probability": "medium",
+      "impact": "medium",
+      "threat": "medium"
+    },
+    {
+      "risk_id": 12,
+      "vulnerability": "high",
+      "probability": "low",
+      "impact": "high",
+      "threat": "medium"
+    },
+    {
+      "risk_id": 13,
+      "vulnerability": "high",
+      "probability": "medium",
+      "impact": "high",
+      "threat": "high"
+    },
+    {
+      "risk_id": 14,
+      "vulnerability": "high",
+      "probability": "low",
+      "impact": "high",
+      "threat": "high"
+    }
+  ],
+  "users": [
+    {
+      "risk_id": 1,
+      "email": "mcubico33@gmail.com",
+      "password": "jGl25bVBBBW96Qi9Te4V37Fnqchz/Eu4qB9vKrRIqRg="
+    }
+  ]
+}
