@@ -50,7 +50,6 @@ export const riskGridColumns: ColumnDef<any, any>[] = [
   {
     accessorKey: "features.vulnerability",
     header: "Vulnerability",
-    sortingFn: () => undefined,
     cell: (row: any) => {
       return (
         <Typography
