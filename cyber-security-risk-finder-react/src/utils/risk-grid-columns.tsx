@@ -6,6 +6,7 @@ export const riskGridColumns: ColumnDef<any, any>[] = [
   {
     accessorKey: "id",
     header: "Id",
+    enableSorting: true,
     cell: (row: any) => {
       return (
         <Typography
@@ -16,7 +17,7 @@ export const riskGridColumns: ColumnDef<any, any>[] = [
           {row.getValue()}
         </Typography>
       )
-    }
+    },
   },
   {
     accessorKey: "risk",
@@ -49,6 +50,7 @@ export const riskGridColumns: ColumnDef<any, any>[] = [
   {
     accessorKey: "features.vulnerability",
     header: "Vulnerability",
+    sortingFn: () => undefined,
     cell: (row: any) => {
       return (
         <Typography
