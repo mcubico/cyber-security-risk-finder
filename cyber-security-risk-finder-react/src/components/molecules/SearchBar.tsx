@@ -1,3 +1,5 @@
+//#region IMPORTS
+
 import { FC, useRef } from 'react';
 import {
   Box,
@@ -7,6 +9,8 @@ import {
   TextFieldProps,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+
+//#endregion
 
 type TSearchBar = {
   onSearchHandle(keyword: string): void

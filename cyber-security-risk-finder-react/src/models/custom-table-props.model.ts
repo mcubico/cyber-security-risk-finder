@@ -3,8 +3,6 @@
 import { Cell, ColumnDef, Row } from "@tanstack/react-table";
 import { TOrder } from "../utils/order";
 
-type Order = 'asc' | 'desc'
-
 export default interface CustomTableProps {
   data: any[]
   columns: ColumnDef<any>[]
@@ -18,6 +16,6 @@ export default interface CustomTableProps {
   order?: TOrder,
   page?: (page: number) => void
   search?: (search: string) => void
-  onSort?: (columnId: string, order: Order) => void
+  onSort?: (columnId: string, order?: TOrder) => void
   onClickRow?: (cell: Cell<any, unknown>, row: Row<any>) => void
 }

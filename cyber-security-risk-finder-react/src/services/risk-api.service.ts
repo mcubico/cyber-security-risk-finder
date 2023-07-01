@@ -1,15 +1,19 @@
+//#region IMPORTS
+
 import axios from "axios"
 import FetchRiskResponse from "../models/fetch-risk-response.model"
 import Pagination from "../models/pagination.model"
 import Risk from "../models/risk.model"
 import axiosInstance from "../utils/axios-instance"
 
+//#endregion
+
 const API_RISKS_ENDPOINT: string = import.meta.env.VITE_API_RISKS_ENDPOINT
 const X_TOTAL_COUNT_HEADER = 'x-total-count'
 
 export const getAllRisk = async (pagination?: Pagination): Promise<FetchRiskResponse> => {
   try {
-    const paginationQuery = makePagination(pagination)
+    const paginationQuery = makePaginationQuery(pagination)
     const endpoint = `/${API_RISKS_ENDPOINT}&${paginationQuery}`
     const response = await axiosInstance.get<FetchRiskResponse>(endpoint)
     const data = response.data as Risk[]
@@ -20,9 +24,10 @@ export const getAllRisk = async (pagination?: Pagination): Promise<FetchRiskResp
       return risk
     })
 
-    const totalCount: number = Number(response.headers[X_TOTAL_COUNT_HEADER]) === 0
-      ? 1
-      : Number(response.headers[X_TOTAL_COUNT_HEADER])
+    const totalCount: number =
+      Number(response.headers[X_TOTAL_COUNT_HEADER]) === 0
+        ? 1
+        : Number(response.headers[X_TOTAL_COUNT_HEADER])
     const totalPages: number = getTotalPages(totalCount, pagination)
 
     console.log('getRisks > endpoint >> ', endpoint);
@@ -56,7 +61,7 @@ export const getAllRisk = async (pagination?: Pagination): Promise<FetchRiskResp
 
 export const getRisksByKeyword = async (keyword: string, pagination?: Pagination): Promise<FetchRiskResponse> => {
   try {
-    const paginationQuery = makePagination(pagination)
+    const paginationQuery = makePaginationQuery(pagination)
     const endpoint = `/${API_RISKS_ENDPOINT}&q=${keyword}&${paginationQuery}`
     const response = await axiosInstance.get<FetchRiskResponse>(endpoint)
     const data = response.data as Risk[]
@@ -66,10 +71,11 @@ export const getRisksByKeyword = async (keyword: string, pagination?: Pagination
 
       return risk
     })
-    
-    const totalCount: number = Number(response.headers[X_TOTAL_COUNT_HEADER]) === 0
-      ? 1
-      : Number(response.headers[X_TOTAL_COUNT_HEADER])
+
+    const totalCount: number =
+      Number(response.headers[X_TOTAL_COUNT_HEADER]) === 0
+        ? 1
+        : Number(response.headers[X_TOTAL_COUNT_HEADER])
     const totalPages: number = getTotalPages(totalCount, pagination)
 
     console.log('getRisksByKeyword > keyword >> ', keyword)
@@ -105,7 +111,7 @@ export const getRisksByKeyword = async (keyword: string, pagination?: Pagination
 const getTotalPages = (totalCount: number, pagination?: Pagination): number =>
   pagination != undefined ? Math.ceil(totalCount / pagination.limit) : 0
 
-const makePagination = (pagination?: Pagination): string => {
+const makePaginationQuery = (pagination?: Pagination): string => {
   if (pagination == undefined)
     return ''
 
@@ -113,6 +119,6 @@ const makePagination = (pagination?: Pagination): string => {
 
   if (pagination.orderBy != undefined && pagination.orderBy.length > 0)
     paginationQuery += `&_sort=${pagination.orderBy}&_order=${pagination.order}`
-  
+
   return paginationQuery
 }

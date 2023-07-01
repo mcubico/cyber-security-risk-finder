@@ -1,8 +1,11 @@
-import { Navigate, Route, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
+//#region IMPORTS
 
+import { Navigate, Route, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
 import RootPage from "../pages/RootPage"
 import HomePage from "../pages/HomePage"
 import LoginPage from "../pages/LoginPage"
+
+//#endregion
 
 const router = createBrowserRouter(
   createRoutesFromElements(

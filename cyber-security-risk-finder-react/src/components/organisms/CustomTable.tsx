@@ -28,10 +28,6 @@ import { TOrder } from "../../utils/order";
 //#endregion
 
 const CustomTable: FC<CustomTableProps> = memo((props: CustomTableProps) => {
-
-  const skeletonCount: number = props.skeletonCount ?? 10
-  const searchLabel = props.searchLabel ?? 'Search'
-
   const [paginationPage, setPaginationPage] = useState(1)
 
   const memoizedData = useMemo(() => props.data, [props.data])
@@ -50,22 +46,28 @@ const CustomTable: FC<CustomTableProps> = memo((props: CustomTableProps) => {
     pageCount: props.pageCount,
   })
 
+  const skeletonCount: number = props.skeletonCount ?? 10
+  const searchLabel = props.searchLabel ?? 'Search'
   const skeletons = Array.from({ length: skeletonCount }, (_x, i) => i)
-
   const columnCount = getAllColumns().length
-
   const noDataFound = !props.isFetching && (!memoizedData || memoizedData.length === 0)
 
-  const onSearchChangeHandler =
+  //#region HANDLES
+  
+  const onSearchChangeHandle =
     (_event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       searchLabel && props.search?.(_event.target.value)
 
-  const onPageChangeHandler = (_event: ChangeEvent<unknown>, currentPage: number) => {
+  const onPageChangeHandle = (_event: ChangeEvent<unknown>, currentPage: number) => {
     setPaginationPage(currentPage === 0 ? 1 : currentPage);
     props.page?.(currentPage === 0 ? 1 : currentPage);
   }
 
-  const onSortHandler = (_event: any) => props.onSort?.(_event.target.id)
+  const onSortHandle = (_event: any) => props.onSort?.(_event.target.id)
+
+  //#endregion
+
+  //#region COMPONENTS
 
   const TableHeadComponent = (): JSX.Element[] => {
     console.log('headerGroup :>> ', getHeaderGroups())
@@ -90,7 +92,7 @@ const CustomTable: FC<CustomTableProps> = memo((props: CustomTableProps) => {
                       id={header.id}
                       active={props.orderBy === header.id}
                       direction={props.orderBy === header.id ? props.order : 'asc'}
-                      onClick={onSortHandler}
+                      onClick={onSortHandle}
                     >
                       {
                         flexRender(
@@ -164,20 +166,22 @@ const CustomTable: FC<CustomTableProps> = memo((props: CustomTableProps) => {
     <StyledPagination
       count={props.pageCount}
       page={paginationPage}
-      onChange={onPageChangeHandler}
+      onChange={onPageChangeHandle}
       color="primary"
     />
   )
 
   const SearchComponent = (): JSX.Element => (
     <TextField
-      onChange={debounce(onSearchChangeHandler, 1000)}
+      onChange={debounce(onSearchChangeHandle, 1000)}
       size="small"
       label={searchLabel}
       margin="normal"
       variant="standard"
     />
   )
+  
+  //#endregion
 
   return (
     <Paper elevation={2} style={{ padding: "1rem 0px" }}>

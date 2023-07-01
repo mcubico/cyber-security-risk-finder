@@ -14,12 +14,17 @@ import { TOrder } from '../utils/order'
 //#endregion
 
 const HomePage = () => {
+
+  //#region USE STATE
+  
   const [risks, setRisks] = useState<FetchRiskResponse>()
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [limitPerPage, setLimitPerPage] = useState<number>(10)
   const [search, setSearch] = useState<string | undefined>("")
   const [orderBy, setOrderBy] = useState('')
   const [order, setOrder] = useState<TOrder>('asc')
+
+  //#endregion
 
   const fetchRisks = async (): Promise<FetchRiskResponse> => {
     let response: FetchRiskResponse = {}
@@ -58,6 +63,8 @@ const HomePage = () => {
     </Box>
   );
 
+  //#region Handles
+  
   const onClickRowHandle = (cell: any, row: any) => {
     console.log({ cell, row });
   }
@@ -68,6 +75,8 @@ const HomePage = () => {
     setOrderBy(column)
     setOrder(order == 'asc' ? 'desc' : 'asc')
   }
+  
+  //#endregion
 
   return <>
     <Box padding={6}>
