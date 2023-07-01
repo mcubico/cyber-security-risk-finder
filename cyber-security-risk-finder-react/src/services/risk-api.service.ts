@@ -9,10 +9,8 @@ const X_TOTAL_COUNT_HEADER = 'x-total-count'
 
 export const getAllRisk = async (pagination?: Pagination): Promise<FetchRiskResponse> => {
   try {
-    const paginationQuery = pagination != undefined
-      ? `&_page=${pagination.page}&_limit${pagination.limit}`
-      : ''
-    const endpoint = `/${API_RISKS_ENDPOINT}${paginationQuery}`
+    const paginationQuery = makePagination(pagination)
+    const endpoint = `/${API_RISKS_ENDPOINT}&${paginationQuery}`
     const response = await axiosInstance.get<FetchRiskResponse>(endpoint)
     const data = response.data as Risk[]
     const risks = data.map((risk: Risk): Risk => {
@@ -58,10 +56,8 @@ export const getAllRisk = async (pagination?: Pagination): Promise<FetchRiskResp
 
 export const getRisksByKeyword = async (keyword: string, pagination?: Pagination): Promise<FetchRiskResponse> => {
   try {
-    const paginationQuery = pagination != undefined
-      ? `&q=${keyword}&_page=${pagination.page}&_limit${pagination.limit}`
-      : ''
-    const endpoint = `/${API_RISKS_ENDPOINT}${paginationQuery}`
+    const paginationQuery = makePagination(pagination)
+    const endpoint = `/${API_RISKS_ENDPOINT}&q=${keyword}&${paginationQuery}`
     const response = await axiosInstance.get<FetchRiskResponse>(endpoint)
     const data = response.data as Risk[]
     const risks = data.map((risk: Risk): Risk => {
@@ -108,3 +104,15 @@ export const getRisksByKeyword = async (keyword: string, pagination?: Pagination
 
 const getTotalPages = (totalCount: number, pagination?: Pagination): number =>
   pagination != undefined ? Math.ceil(totalCount / pagination.limit) : 0
+
+const makePagination = (pagination?: Pagination): string => {
+  if (pagination == undefined)
+    return ''
+
+  let paginationQuery = `_page=${pagination.page}&_limit${pagination.limit}`
+
+  if (pagination.orderBy != undefined && pagination.orderBy.length > 0)
+    paginationQuery += `&_sort=${pagination.orderBy}&_order=${pagination.order}`
+  
+  return paginationQuery
+}

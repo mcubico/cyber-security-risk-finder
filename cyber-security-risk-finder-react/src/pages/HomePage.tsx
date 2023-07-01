@@ -1,24 +1,35 @@
-import { useState } from 'react';
-import SearchBar from '../components/molecules/SearchBar'
+//#region IMPORTS
+
+import { useState } from 'react'
 import FetchRiskResponse from '../models/fetch-risk-response.model'
-import { getAllRisk, getRisksByKeyword } from '../services/risk-api.service';
-import { Box, Button, Typography } from '@mui/material';
-import CustomTable from '../components/organisms/CustomTable';
-import { riskGridColumns } from '../utils/risk-grid-columns';
-import { useQuery } from '@tanstack/react-query';
-import Pagination from '../models/pagination.model';
+import { getAllRisk, getRisksByKeyword } from '../services/risk-api.service'
+import { Box, Button, Typography } from '@mui/material'
+import CustomTable from '../components/organisms/CustomTable'
+import { riskGridColumns } from '../utils/risk-grid-columns'
+import { useQuery } from '@tanstack/react-query'
+import Pagination from '../models/pagination.model'
+import Add from '@mui/icons-material/Add'
+import { TOrder } from '../utils/order'
+
+//#endregion
 
 const HomePage = () => {
   const [risks, setRisks] = useState<FetchRiskResponse>()
-  const [query, setQuery] = useState('')
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [limitPerPage, setLimitPerPage] = useState<number>(10)
   const [search, setSearch] = useState<string | undefined>("")
+  const [orderBy, setOrderBy] = useState('')
+  const [order, setOrder] = useState<TOrder>('asc')
 
-
-  const fetchRisks = async () => {
+  const fetchRisks = async (): Promise<FetchRiskResponse> => {
     let response: FetchRiskResponse = {}
-    const pagination: Pagination = { page: currentPage ?? 1, limit: limitPerPage ?? 10 }
+    const pagination: Pagination = { 
+      page: currentPage ?? 1, 
+      limit: limitPerPage ?? 10,
+      orderBy,
+      order
+    }
+
     if (search != undefined && search.length > 0)
       response = await getRisksByKeyword(search, pagination)
     else
@@ -29,51 +40,52 @@ const HomePage = () => {
     return response
   }
 
-  const queryResponse =
-    useQuery<FetchRiskResponse, Error>(
-      ["risks", currentPage, search], fetchRisks,
-      {
-        refetchOnWindowFocus: false,
-        keepPreviousData: true,
-      }
-    )
+  const queryResponse = useQuery<FetchRiskResponse, Error>(
+    {
+      queryKey: ["risks", currentPage, search, orderBy, order],
+      queryFn: fetchRisks,
+      refetchOnWindowFocus: false,
+      keepPreviousData: true,
+    }
+  )
 
-  const Header = (
+  const HeaderComponent = (
     <Box display="flex" justifyContent="space-between">
       <Typography variant="h4" alignItems="center">
-        User Table
+        {import.meta.env.VITE_APP_TITLE}
       </Typography>
-      <Button>Action Button</Button>
+      <Button variant="outlined" startIcon={<Add />}>New</Button>
     </Box>
   );
 
-  const onClickRow = (cell: any, row: any) => {
+  const onClickRowHandle = (cell: any, row: any) => {
     console.log({ cell, row });
   }
 
-  const onSearchHandle = (keyword: string): void => {
-    setQuery(keyword)
-    console.log('query :>> ', query)
-    //TODO: Look up the risks using service
-    //TODO: Assign risks to the status variable
+  const onSortHandler = (column: string) => {
+    console.log('column', column)
+    console.log('order', order)
+    setOrderBy(column)
+    setOrder(order == 'asc' ? 'desc' : 'asc')
   }
 
   return <>
-    <SearchBar onSearchHandle={onSearchHandle} />
-
     <Box padding={6}>
       {
         risks &&
         <CustomTable
           data={risks.data ?? []}
           columns={riskGridColumns}
-          isFetching={queryResponse.isFetching}
-          onClickRow={onClickRow}
           pageCount={risks.totalPages}
+          searchLabel="Search by keyword"
+          headerComponent={HeaderComponent}
+          isFetching={queryResponse.isFetching}
+          orderBy={orderBy}
+          order={order}
           page={setCurrentPage}
           search={setSearch}
-          headerComponent={Header}
-          searchLabel="Search by keyword"
+          onClickRow={onClickRowHandle}
+          onSort={onSortHandler}
         />
       }
     </Box>

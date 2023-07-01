@@ -1,4 +1,6 @@
 export default interface Pagination {
-  page: number,
+  page: number
   limit: number
+  orderBy?: string
+  order?: string
 }

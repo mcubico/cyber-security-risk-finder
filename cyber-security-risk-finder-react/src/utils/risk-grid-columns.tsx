@@ -6,7 +6,6 @@ export const riskGridColumns: ColumnDef<any, any>[] = [
   {
     accessorKey: "id",
     header: "Id",
-    enableSorting: true,
     cell: (row: any) => {
       return (
         <Typography
@@ -50,6 +49,7 @@ export const riskGridColumns: ColumnDef<any, any>[] = [
   {
     accessorKey: "features.vulnerability",
     header: "Vulnerability",
+    enableSorting: true,
     cell: (row: any) => {
       return (
         <Typography
@@ -60,11 +60,13 @@ export const riskGridColumns: ColumnDef<any, any>[] = [
           {row.getValue()}
         </Typography>
       )
-    }
+    },
+
   },
   {
     accessorKey: "features.probability",
     header: "Probability",
+    enableSorting: true,
     cell: (row: any) => {
       return (
         <Typography
@@ -80,6 +82,7 @@ export const riskGridColumns: ColumnDef<any, any>[] = [
   {
     accessorKey: "features.impact",
     header: "Impact",
+    enableSorting: true,
     cell: (row: any) => {
       return (
         <Typography
@@ -95,6 +98,7 @@ export const riskGridColumns: ColumnDef<any, any>[] = [
   {
     accessorKey: "features.threat",
     header: "Threat",
+    enableSorting: true,
     cell: (row: any) => {
       return (
         <Typography

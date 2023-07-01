@@ -1,3 +1,4 @@
+//#region IMPORTS
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ChangeEvent, FC, memo, useMemo, useState } from "react"
@@ -11,6 +12,7 @@ import {
   Box,
   TextField,
   Skeleton,
+  TableSortLabel,
 } from "@mui/material";
 import {
   flexRender,
@@ -20,6 +22,10 @@ import {
 import CustomTableProps from "../../models/custom-table-props.model";
 import { StyledPagination, StyledTableRow } from "../../utils/custom-table-styles";
 import { debounce } from "lodash";
+import { visuallyHidden } from '@mui/utils';
+import { TOrder } from "../../utils/order";
+
+//#endregion
 
 const CustomTable: FC<CustomTableProps> = memo((props: CustomTableProps) => {
 
@@ -29,20 +35,18 @@ const CustomTable: FC<CustomTableProps> = memo((props: CustomTableProps) => {
   const [paginationPage, setPaginationPage] = useState(1)
 
   const memoizedData = useMemo(() => props.data, [props.data])
-
   const memoizedColumns = useMemo(() => props.columns, [props.columns])
-
-  const memoisedHeaderComponent =
-    useMemo(
-      () => props.headerComponent,
-      [props.headerComponent]
-    )
+  const memoisedHeaderComponent = useMemo(
+    () => props.headerComponent,
+    [props.headerComponent]
+  )
 
   const { getHeaderGroups, getRowModel, getAllColumns } = useReactTable({
     data: memoizedData,
     columns: memoizedColumns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
+    manualSorting: true,
     pageCount: props.pageCount,
   })
 
@@ -52,34 +56,69 @@ const CustomTable: FC<CustomTableProps> = memo((props: CustomTableProps) => {
 
   const noDataFound = !props.isFetching && (!memoizedData || memoizedData.length === 0)
 
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    searchLabel && props.search?.(e.target.value)
+  const onSearchChangeHandler =
+    (_event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      searchLabel && props.search?.(_event.target.value)
 
-  const handlePageChange = (_event: ChangeEvent<unknown>, currentPage: number) => {
+  const onPageChangeHandler = (_event: ChangeEvent<unknown>, currentPage: number) => {
     setPaginationPage(currentPage === 0 ? 1 : currentPage);
     props.page?.(currentPage === 0 ? 1 : currentPage);
   }
 
-  const TableHeadComponent = (): JSX.Element[] => (
-    getHeaderGroups().map((headerGroup) => (
+  const onSortHandler = (_event: any) => props.onSort?.(_event.target.id)
+
+  const TableHeadComponent = (): JSX.Element[] => {
+    console.log('headerGroup :>> ', getHeaderGroups())
+
+    console.log('orderBy', props.orderBy)
+    console.log('order', props.order)
+    return getHeaderGroups().map((headerGroup) => (
       <TableRow key={headerGroup.id}>
         {
           headerGroup.headers.map((header) => (
-            <TableCell key={header.id}>
+            <TableCell
+              key={header.id}
+              sortDirection={props.orderBy === header.id ? props.order : false}
+            >
               {
                 header.isPlaceholder
                   ? null
-                  : flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )
+                  :
+                  header.column.columnDef.enableSorting
+                    ?
+                    <TableSortLabel
+                      id={header.id}
+                      active={props.orderBy === header.id}
+                      direction={props.orderBy === header.id ? props.order : 'asc'}
+                      onClick={onSortHandler}
+                    >
+                      {
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )
+                      }
+                      {
+                        props.orderBy === header.id ? (
+                          <Box component="span" sx={visuallyHidden}>
+                            {props.order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                          </Box>
+                        ) : null
+                      }
+                    </TableSortLabel>
+                    :
+                    flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )
               }
+
             </TableCell>
           ))
         }
       </TableRow>
     ))
-  )
+  }
 
   const TableBodyComponent = (): JSX.Element[] => (
     getRowModel().rows.map((row) => (
@@ -125,14 +164,14 @@ const CustomTable: FC<CustomTableProps> = memo((props: CustomTableProps) => {
     <StyledPagination
       count={props.pageCount}
       page={paginationPage}
-      onChange={handlePageChange}
+      onChange={onPageChangeHandler}
       color="primary"
     />
   )
 
   const SearchComponent = (): JSX.Element => (
     <TextField
-      onChange={debounce(handleSearchChange, 1000)}
+      onChange={debounce(onSearchChangeHandler, 1000)}
       size="small"
       label={searchLabel}
       margin="normal"
