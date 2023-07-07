@@ -1,13 +1,18 @@
 import pymongo
-from flask import Flask, request, jsonify, make_response
-from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
-from pymongo import MongoClient
-from urllib.parse import quote_plus
-from markupsafe import escape
 import datetime
 import hashlib
 
-from pymongo.errors import DuplicateKeyError, ConnectionFailure
+import werkzeug.exceptions
+from bson import ObjectId
+from flask import Flask, request, jsonify, make_response
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
+from flask_pydantic import validate, ValidationError
+from pymongo import MongoClient
+from urllib.parse import quote_plus
+from markupsafe import escape
+from pymongo.errors import DuplicateKeyError
+
+from models import LoginModel, PaginationModel, OrderPaginationEnum, RiskModel
 
 app = Flask(__name__)
 
@@ -23,14 +28,21 @@ uri = f'{protocol}://{username}:{password}@{cluster}.{hostname}/{database}?retry
 client = MongoClient(uri)
 
 db = client[database]
+
 risks_collection = db['Risks']
+risks_collection.create_index('risk')
+risks_collection.create_index('description')
+
+features_collection = db['Features']
+
 users_collection = db['Users']
+users_collection.create_index('username')
 
 # initialize JWTManager
 jwt = JWTManager(app)
 app.config['JWT_SECRET_KEY'] = '9da06b778ddf921de7358a56b3b59ebc'
 # define the life span of the token
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=15)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 
 
 @app.route('/api/v1/ping')
@@ -60,7 +72,7 @@ def register():
             return jsonify({'error': 'Username already exists'}), 409
 
         # Creating user
-        users_collection.insert_one(payload)
+        _ = users_collection.insert_one(payload)
         return jsonify({'msg': 'User created successfully'}), 201
     except Exception as e:
         app.logger.error(e)
@@ -68,17 +80,15 @@ def register():
 
 
 @app.route("/api/v1/login", methods=["POST"])
-def login():
+@validate()
+def login(body: LoginModel):
     try:
-        # Getting the login details from payload
-        payload = request.get_json()
-
-        user_from_db = get_user_by_username(payload['username'])
+        user_from_db = get_user_by_username(body.username)
         if not user_from_db:
             return jsonify({'error': 'The username or password is incorrect'}), 401
 
         # Check if password is correct
-        encrypted_password = encrypt_password(payload['password'])
+        encrypted_password = encrypt_password(body.password)
         if encrypted_password == user_from_db['password']:
             # Create JWT Access Token
             access_token = create_access_token(identity=user_from_db['username'])  # create jwt token
@@ -93,13 +103,8 @@ def login():
 
 @app.route("/api/v1/risks", methods=["POST"])
 @jwt_required()
-def create_risk():
-    """
-    Creating the risk
-    :return:
-        dict: Return the risk and feature created
-    """
-
+@validate()
+def create_risk(body: RiskModel):
     try:
         # Getting the user from access token
         username_from_jwt = get_jwt_identity()
@@ -108,16 +113,29 @@ def create_risk():
         if not user_from_db:
             return jsonify({'error': 'Access Token Expired'}), 404
 
-        # Getting the risk details from json
-        payload = request.get_json()
-
         # Viewing if risk already present in collection
-        risk_title = payload["risk"].lower()
-        risk_from_db = risks_collection.find_one({'risk': risk_title})
+        body.risk = body.risk.lower()
+        risk_from_db = risks_collection.find_one({'risk': body.risk})
         if risk_from_db:
             return jsonify({'error': 'Risk already exists on your profile'}), 404
 
-        risk_id = risks_collection.insert_one(payload).inserted_id
+        with client.start_session() as transaction:
+            def cb(transaction):
+                risk_id = risks_collection.insert_one({
+                    'risk': body.risk,
+                    'description': body.description,
+                    'active': True
+                }).inserted_id
+
+                features_collection.insert_one({
+                    '_id': risk_id,
+                    'vulnerability': body.features.vulnerability,
+                    'probability': body.features.probability,
+                    'impact': body.features.impact,
+                    'thread': body.features.thread,
+                })
+
+            transaction.with_transaction(cb)
 
         return jsonify({'msg': 'Risk created successfully'}), 201
     except Exception as e:
@@ -127,7 +145,7 @@ def create_risk():
 
 @app.route("/api/v1/risks/<int:risk_id>", methods=["PUT"])
 @jwt_required()
-def update_risk(risk_id):
+def update_risk(risk_id: int):
     try:
         # Getting the user from access token
         username_from_jwt = get_jwt_identity()
@@ -137,8 +155,7 @@ def update_risk(risk_id):
             return jsonify({'error': 'Access Token Expired'}), 404
 
         # Getting the risk details from json
-        payload = request.get_json()
-
+        payload = request.args
         result = risks_collection.find_one_and_update({'_id': risk_id}, {'$set', {'active': payload['active']}})
 
         return jsonify({'msg': 'Risk updated successfully', 'data': result}), 200
@@ -158,20 +175,16 @@ def fetch_risks():
         if not user_from_db:
             return jsonify({'error': 'Access Token Expired'}), 404
 
-        page = int(request.args.get(key="page", default=1))
-        limit = int(request.args.get(key="limit", default=3))
-        order_by = request.args.get(key="order_by", default='risk')
-        order_desc = request.args.get(key="order", default=pymongo.ASCENDING)
-
+        query_parameters = request.args
+        pagination = PaginationModel(**query_parameters)
         risks = list(
-            risks_collection.find({}, {'active': 0})
-            .sort(key_or_list=order_by, direction=order_desc)
-            .skip(skip=limit * (page - 1))
-            .limit(limit=limit)
+            risks_collection.aggregate(
+                pipeline=get_query_to_fetch_risks(pagination)
+            )
         )
 
         response = make_response(jsonify({"data": risks}), 200)
-        response.headers['x-total-count'] = risks_collection.count_documents({})
+        response.headers['x-total-count'] = risks[0]['count']
 
         return response
     except Exception as e:
@@ -189,10 +202,24 @@ def resource_not_found(e):
 
 @app.errorhandler(DuplicateKeyError)
 def resource_not_found(e):
-    """
-    An error-handler to ensure that MongoDB duplicate key errors are returned as JSON.
-    """
     return jsonify(error=f"Duplicate key error."), 400
+
+
+@app.errorhandler(werkzeug.exceptions.InternalServerError)
+def handle_exception(e):
+    app.logger.error(e)
+    return jsonify(error=f"Unexpected error."), 500
+
+
+@app.errorhandler(werkzeug.exceptions.MethodNotAllowed)
+def handle_exception(e):
+    app.logger.error(e)
+    return jsonify(error=f"Method not allowed."), 405
+
+
+@app.errorhandler(ValidationError)
+def handle_pydantic_validation_errors(e):
+    return jsonify(e.errors())
 
 
 def user_exists(username):
@@ -206,3 +233,53 @@ def get_user_by_username(username):
 
 def encrypt_password(password):
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+
+def get_query_to_fetch_risks(pagination: PaginationModel):
+    query = [
+        {
+            '$lookup': {
+                'from': 'Features',
+                'localField': '_id',
+                'foreignField': '_id',
+                'as': 'features'
+            }
+        },
+        {'$addFields': {'risks._id': {'$toString': '$_id'}}},
+        {'$unset': ['_id', 'active', 'features._id']}
+    ]
+
+    if pagination.query:
+        query_escaped = escape(pagination.query)
+        query.append({
+            '$match': {
+                '$or': [
+                    {'risks._id': {'$regex': query_escaped}},
+                    {'risk': {'$regex': query_escaped}},
+                    {'description': {'$regex': query_escaped}}
+                ]
+            }
+        })
+
+    direction = pymongo.ASCENDING if pagination.order == OrderPaginationEnum.ASCENDING else pymongo.DESCENDING
+    if pagination.order_by:
+        query.append({'$sort': {f'features.{pagination.order_by.value}': direction}})
+
+    query.append({
+        '$group': {
+            '_id': None,
+            'count': {'$sum': 1},
+            'results': {'$push': '$$ROOT'}
+        }
+    })
+
+    row_start = pagination.limit * (pagination.page - 1)
+    query.append({
+        '$project': {
+            'count': 1,
+            '_id': 0,
+            'rows': {'$slice': ['$results', row_start, pagination.limit]},
+        }
+    })
+
+    return query
