@@ -1,11 +1,12 @@
 import { Outlet } from "react-router-dom"
 import Copyright from "../components/atoms/Copyright"
+import Container from "@mui/material/Container"
 
 const RootPage = () => (
   <>
-    <div id="content-page">
+    <Container id="content-page">
       <Outlet />
-    </div>
+    </Container>
     <Copyright sx={{ mt: 8, mb: 4 }} />
   </>
 )
