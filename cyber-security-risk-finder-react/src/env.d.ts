@@ -7,7 +7,12 @@ interface RouterEnv {
 
 interface RiskApiEndpointsEnv {
   readonly VITE_API_URL_BASE: string,
+  readonly VITE_API_HEALTH_CHECKER_ENDPOINT: string,
   readonly VITE_API_RISKS_ENDPOINT: string,
+  readonly VITE_API_USERS_ME_ENDPOINT: string,
+  readonly VITE_API_LOGIN_ENDPOINT: string,
+  readonly VITE_API_LOGOUT_ENDPOINT: string,
+  readonly VITE_API_TOKEN_REFRESH_ENDPOINT: string,
 }
 
 interface ImportMetaEnv {

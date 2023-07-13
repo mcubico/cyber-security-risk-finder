@@ -1,8 +1,7 @@
-import Features from "./features.model"
+import IFeatureModel from "./features.model"
 
-export default interface Risk {
-  id: number
+export default interface IRiskModel {
   risk: string
   description: string
-  features: Features
+  features: IFeatureModel
 }

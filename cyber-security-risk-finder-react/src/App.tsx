@@ -1,21 +1,23 @@
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { RouterProvider } from 'react-router-dom'
+import { useRoutes } from 'react-router-dom'
 import CssBaseline from '@mui/material/CssBaseline'
-import router from './router/router'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import routes from './router/index.router'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const defaultTheme = createTheme()
-const queryClient = new QueryClient()
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ReactQueryDevtools initialIsOpen={false} />
+const App = () => {
+  const content = useRoutes(routes)
+
+  return <>
     <CssBaseline enableColorScheme={true} />
+    <ToastContainer />
     <ThemeProvider theme={defaultTheme}>
-      <RouterProvider router={router} />
+      {content}
     </ThemeProvider>
-  </QueryClientProvider>
-)
+  </>
+}
 
 export default App

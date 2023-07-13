@@ -7,16 +7,17 @@ import { Box, Button, Typography } from '@mui/material'
 import CustomTable from '../components/organisms/CustomTable'
 import { riskGridColumns } from '../utils/risk-grid-columns'
 import { useQuery } from '@tanstack/react-query'
-import Pagination from '../models/pagination.model'
+import IPagination from '../models/pagination.model'
 import Add from '@mui/icons-material/Add'
 import { TOrder } from '../utils/order'
+import IRiskModel from '../models/risk.model'
 
 //#endregion
 
-const HomePage = () => {
+const RiskFinderPage = () => {
 
   //#region USE STATE
-  
+
   const [risks, setRisks] = useState<FetchRiskResponse>()
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [limitPerPage, setLimitPerPage] = useState<number>(10)
@@ -28,8 +29,8 @@ const HomePage = () => {
 
   const fetchRisks = async (): Promise<FetchRiskResponse> => {
     let response: FetchRiskResponse = {}
-    const pagination: Pagination = { 
-      page: currentPage ?? 1, 
+    const pagination: IPagination = {
+      page: currentPage ?? 1,
       limit: limitPerPage ?? 10,
       orderBy,
       order
@@ -61,10 +62,10 @@ const HomePage = () => {
       </Typography>
       <Button variant="outlined" startIcon={<Add />}>New</Button>
     </Box>
-  );
+  )
 
   //#region Handles
-  
+
   const onClickRowHandle = (cell: any, row: any) => {
     console.log({ cell, row });
   }
@@ -75,19 +76,25 @@ const HomePage = () => {
     setOrderBy(column)
     setOrder(order == 'asc' ? 'desc' : 'asc')
   }
-  
+
   //#endregion
+
+  const getRiskData = (): IRiskModel[] | undefined => {
+    if (risks == undefined || risks.data == undefined || risks.data.length == 0)
+      return undefined
+
+    return risks.data[0].rows
+  }
 
   return <>
     <Box padding={6}>
       {
         risks &&
         <CustomTable
-          data={risks.data ?? []}
+          data={getRiskData() ?? []}
           columns={riskGridColumns}
           pageCount={risks.totalPages}
           searchLabel="Search by keyword"
-          headerComponent={HeaderComponent}
           isFetching={queryResponse.isFetching}
           orderBy={orderBy}
           order={order}
@@ -101,4 +108,4 @@ const HomePage = () => {
   </>
 }
 
-export default HomePage
+export default RiskFinderPage

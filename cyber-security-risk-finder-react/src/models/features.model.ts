@@ -1,5 +1,4 @@
-export default interface Features {
-  risk_id: number
+export default interface IFeatureModel {
   vulnerability: string
   probability: string
   impact: string

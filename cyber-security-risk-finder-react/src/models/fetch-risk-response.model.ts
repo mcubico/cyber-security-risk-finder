@@ -1,8 +1,13 @@
-import ApiResponse from "./api-response.model";
-import Risk from "./risk.model";
+import IApiResponse from "../types/api-response.type"
+import IRiskModel from "./risk.model"
 
-export default interface FetchRiskResponse extends ApiResponse {
-  data?: Risk[]
+export interface dataRisk {
+  count?: number,
+  rows?: IRiskModel[],
+}
+
+export default interface FetchRiskResponse extends IApiResponse {
+  data?: dataRisk[]
   totalItems?: number
   totalPages?: number
 }

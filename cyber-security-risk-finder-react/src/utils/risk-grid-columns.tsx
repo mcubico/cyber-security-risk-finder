@@ -4,21 +4,6 @@ import { ColumnDef } from "@tanstack/react-table"
 
 export const riskGridColumns: ColumnDef<any, any>[] = [
   {
-    accessorKey: "id",
-    header: "Id",
-    cell: (row: any) => {
-      return (
-        <Typography
-          variant="inherit"
-          gutterBottom
-          align="center"
-        >
-          {row.getValue()}
-        </Typography>
-      )
-    },
-  },
-  {
     accessorKey: "risk",
     header: "Risk",
     cell: (row: any) => {

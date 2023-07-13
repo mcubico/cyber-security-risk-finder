@@ -1,44 +1,44 @@
 //#region IMPORTS
 
 import axios from "axios"
-import FetchRiskResponse from "../models/fetch-risk-response.model"
-import Pagination from "../models/pagination.model"
-import Risk from "../models/risk.model"
+import FetchRiskResponse, { dataRisk } from "../models/fetch-risk-response.model"
+import IPagination from "../models/pagination.model"
+import IRiskModel from "../models/risk.model"
 import axiosInstance from "../utils/axios-instance"
 
 //#endregion
 
-const API_RISKS_ENDPOINT: string = import.meta.env.VITE_API_RISKS_ENDPOINT
+const API_RISKS_ENDPOINT = import.meta.env.VITE_API_RISKS_ENDPOINT
 const X_TOTAL_COUNT_HEADER = 'x-total-count'
 
-export const getAllRisk = async (pagination?: Pagination): Promise<FetchRiskResponse> => {
+export const getAllRisk = async (pagination?: IPagination): Promise<FetchRiskResponse> => {
   try {
     const paginationQuery = makePaginationQuery(pagination)
-    const endpoint = `/${API_RISKS_ENDPOINT}&${paginationQuery}`
+    const endpoint = `/${API_RISKS_ENDPOINT}?${paginationQuery}`
     const response = await axiosInstance.get<FetchRiskResponse>(endpoint)
-    const data = response.data as Risk[]
-    const risks = data.map((risk: Risk): Risk => {
+    const data = response.data.data as dataRisk[]
+    const risks = data[0].rows?.map((risk: IRiskModel): IRiskModel => {
       if (Array.isArray(risk.features))
         risk.features = risk.features[0]
 
       return risk
     })
 
-    const totalCount: number =
+    const totalCount: number = response.headers[X_TOTAL_COUNT_HEADER] ?? data[0]?.count
       Number(response.headers[X_TOTAL_COUNT_HEADER]) === 0
         ? 1
         : Number(response.headers[X_TOTAL_COUNT_HEADER])
     const totalPages: number = getTotalPages(totalCount, pagination)
 
-    console.log('getRisks > endpoint >> ', endpoint);
-    console.log('getRisks > response.headers >> ', response.headers)
+    console.log('getRisks > endpoint >> ', endpoint)
+    console.log('getRisks > response.headers >> ', response.headers[X_TOTAL_COUNT_HEADER])
     console.log('getRisks > response.data >> ', risks)
     console.log('getRisks > totalCount >> ', totalCount)
     console.log('getRisks > totalPages >> ', totalPages)
 
     return {
       status: response.status,
-      data: risks,
+      data,
       totalItems: totalCount,
       totalPages
     }
@@ -50,7 +50,7 @@ export const getAllRisk = async (pagination?: Pagination): Promise<FetchRiskResp
 
     if (axios.isAxiosError(error)) {
       response.status = error.status
-      response.error = error.message
+      response.error = true
     } else {
       console.error(error);
     }
@@ -59,13 +59,13 @@ export const getAllRisk = async (pagination?: Pagination): Promise<FetchRiskResp
   }
 }
 
-export const getRisksByKeyword = async (keyword: string, pagination?: Pagination): Promise<FetchRiskResponse> => {
+export const getRisksByKeyword = async (keyword: string, pagination?: IPagination): Promise<FetchRiskResponse> => {
   try {
     const paginationQuery = makePaginationQuery(pagination)
-    const endpoint = `/${API_RISKS_ENDPOINT}&q=${keyword}&${paginationQuery}`
+    const endpoint = `/${API_RISKS_ENDPOINT}?query=${keyword}&${paginationQuery}`
     const response = await axiosInstance.get<FetchRiskResponse>(endpoint)
-    const data = response.data as Risk[]
-    const risks = data.map((risk: Risk): Risk => {
+    const data = response.data.data as dataRisk[]
+    const risks = data[0].rows?.map((risk: IRiskModel): IRiskModel => {
       if (Array.isArray(risk.features))
         risk.features = risk.features[0]
 
@@ -87,7 +87,7 @@ export const getRisksByKeyword = async (keyword: string, pagination?: Pagination
 
     return {
       status: response.status,
-      data: risks,
+      data,
       totalItems: totalCount,
       totalPages
     }
@@ -108,17 +108,17 @@ export const getRisksByKeyword = async (keyword: string, pagination?: Pagination
   }
 }
 
-const getTotalPages = (totalCount: number, pagination?: Pagination): number =>
+const getTotalPages = (totalCount: number, pagination?: IPagination): number =>
   pagination != undefined ? Math.ceil(totalCount / pagination.limit) : 0
 
-const makePaginationQuery = (pagination?: Pagination): string => {
+const makePaginationQuery = (pagination?: IPagination): string => {
   if (pagination == undefined)
     return ''
 
-  let paginationQuery = `_page=${pagination.page}&_limit${pagination.limit}`
+  let paginationQuery = `page=${pagination.page}&limit=${pagination.limit}`
 
   if (pagination.orderBy != undefined && pagination.orderBy.length > 0)
-    paginationQuery += `&_sort=${pagination.orderBy}&_order=${pagination.order}`
+    paginationQuery += `&order_by=${pagination.orderBy.replace('features_', '')}&order=${pagination.order}`
 
   return paginationQuery
 }
